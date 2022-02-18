@@ -1,5 +1,7 @@
 from http.cookiejar import CookieJar
+import logging
 import lxml.etree
+import time
 from urllib.parse import urlencode
 import urllib.request
 
@@ -33,7 +35,7 @@ class API:
 
         resp = self.url_opener.open(
             'https://www.pix-star.com/accounts/login/',
-            data=urllib.parse.urlencode({
+            data=urlencode({
                 'csrfmiddlewaretoken': self.csrf_token,
                 'username': username,
                 'password': password}).encode('utf-8'))
@@ -41,6 +43,7 @@ class API:
         assert resp.status == 200
         assert resp.geturl() == 'https://www.pix-star.com/my_pixstar/'
 
+    # TODO: Handle paging
     def albums(self):
         '''
         List the user's web albums.
@@ -53,12 +56,40 @@ class API:
 
         return _parse_list_response(resp)
 
+    def album_photos(self, id):
+        '''
+        Get information about the given album.
+        '''
+
+        assert self.csrf_token
+
+        photos = set()
+        page_num = 1
+        while True:
+            logging.info(f'Requesting page {page_num}')
+
+            qs = urlencode({
+                'page': page_num,
+                'size': 'small',
+                '_': int(time.time() * 1000),
+            })
+            req = urllib.request.Request(f'https://www.pix-star.com/album/web/{id}/?{qs}')
+            # XXX: Without this X-Requested-With header, we get a 404 on the last page
+            #      rather than the sentintel 'no-more' response. The Pix-Star website
+            #      uses the sentinel response, so do the same here.
+            req.add_header('X-Requested-With', 'XMLHttpRequest')
+            resp = self.url_opener.open(req)
+            assert resp.status == 200
+
+            page_photos = _parse_album_photos_response(resp)
+            if not page_photos:
+                return photos
+
+            photos |= page_photos
+            page_num += 1
+
 
 def _parse_list_response(f):
-    '''
-    Parse the HTML from an /albums/list/ response.
-    '''
-
     albums = []
 
     doc = lxml.etree.parse(f, lxml.etree.HTMLParser())
@@ -73,10 +104,24 @@ def _parse_list_response(f):
         assert id.startswith('album_id_')
         id = id[len('album_id_'):]
 
-        name = a.text
         albums.append({
             'name': a.text,
             'id': id,
         })
 
     return albums
+
+
+def _parse_album_photos_response(f):
+    photos = set()
+
+    data = f.read()
+    if data == 'no-more':
+        return photos
+
+    doc = lxml.etree.fromstring(data, lxml.etree.HTMLParser())
+
+    for p in doc.xpath('//h5[@class="photo_title"]'):
+        photos.add(p.attrib['title'])
+
+    return photos

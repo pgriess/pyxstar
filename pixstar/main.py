@@ -40,7 +40,9 @@ def main():
     api.login(args.username, args.password)
 
     for a in api.albums():
-        print(a)
+        print(a['name'])
+        for p in api.album_photos(a['id']):
+            print(f'  {p}')
 
     if False:
         db_path = osxphotos.utils.get_system_library_path()
