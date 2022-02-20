@@ -56,7 +56,7 @@ class API:
 
         return _parse_list_response(resp)
 
-    def album_photos(self, id):
+    def album_photos(self, album_id):
         '''
         Get information about the given album.
         '''
@@ -73,7 +73,7 @@ class API:
                 'size': 'small',
                 '_': int(time.time() * 1000),
             })
-            req = urllib.request.Request(f'https://www.pix-star.com/album/web/{id}/?{qs}')
+            req = urllib.request.Request(f'https://www.pix-star.com/album/web/{album_id}/?{qs}')
             # XXX: Without this X-Requested-With header, we get a 404 on the last page
             #      rather than the sentintel 'no-more' response. The Pix-Star website
             #      uses the sentinel response, so do the same here.
@@ -113,7 +113,7 @@ def _parse_list_response(f):
 
 
 def _parse_album_photos_response(f):
-    photos = set()
+    photos = []
 
     data = f.read()
     if data == 'no-more':
@@ -121,7 +121,16 @@ def _parse_album_photos_response(f):
 
     doc = lxml.etree.fromstring(data, lxml.etree.HTMLParser())
 
-    for p in doc.xpath('//h5[@class="photo_title"]'):
-        photos.add(p.attrib['title'])
+    for li in doc.xpath('//li[@class="album-image"]'):
+        cb = li.xpath('.//input[@type="checkbox"][@class="image-checkbox"]')
+        assert len(cb) == 1
+
+        a = li.xpath('.//h5[@class="photo_title"]')
+        assert len(a) == 1
+
+        photos.append({
+            'title': a[0].attrib['title'],
+            'id': cb[0].attrib['value'],
+        })
 
     return photos
