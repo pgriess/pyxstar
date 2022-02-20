@@ -17,6 +17,9 @@ def main():
         '-v', dest='verbosity', action='count', default=0,
         help='increase logging verbosity; can be used multiple times')
     ap.add_argument(
+        '-k', dest='validate_https', action='store_false', default=True,
+        help='disable HTTPS certificate checking')
+    ap.add_argument(
         'username', help='Pix-Start username, without @mypixstar.com')
     # TODO: Get from Keychain
     ap.add_argument(
@@ -30,11 +33,10 @@ def main():
         style='{', format='{message}', stream=sys.stderr,
         level=logging.ERROR - args.verbosity * 10)
 
-    # TODO: Move this behind an option, or figure out how to get Charles
-    #       certificates imported into the system keychain. Try for the second.
-    # ctx = SSLContext()
-    # ctx.verify_mode = CERT_NONE
     ctx = None
+    if not args.validate_https:
+        ctx = SSLContext()
+        ctx.verify_mode = CERT_NONE
 
     api = API(ssl_context=ctx)
     api.login(args.username, args.password)
