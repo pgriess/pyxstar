@@ -63,7 +63,7 @@ class API:
 
         assert self.csrf_token
 
-        photos = set()
+        photos = []
         page_num = 1
         while True:
             logging.info(f'Requesting page {page_num}')
@@ -85,7 +85,7 @@ class API:
             if not page_photos:
                 return photos
 
-            photos |= page_photos
+            photos += page_photos
             page_num += 1
 
 
