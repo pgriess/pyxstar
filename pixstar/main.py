@@ -11,19 +11,45 @@ import osxphotos
 from .api import API
 
 
+def ls(args, api):
+    albums = api.albums()
+
+    if not args.item:
+        for a in albums:
+            print(a.name)
+
+        return
+
+    for a in albums:
+        if a.name != args.item:
+            continue
+
+        for p in api.album_photos(a):
+            print(f'{p.id}\t{p.name}')
+
+        return
+
+    raise Exception(f'Unable to find album named {args.item}')
+
+
 def main():
     ap = ArgumentParser()
     ap.add_argument(
-        '-v', dest='verbosity', action='count', default=0,
-        help='increase logging verbosity; can be used multiple times')
-    ap.add_argument(
         '-k', dest='validate_https', action='store_false', default=True,
         help='disable HTTPS certificate checking')
-    ap.add_argument(
-        'username', help='Pix-Star username, without @mypixstar.com')
     # TODO: Get from Keychain
+    ap.add_argument('-p', dest='password', help='Pix-Star password')
     ap.add_argument(
-        'password', help='Pix-Star password')
+        '-u', dest='username', help='Pix-Star username, without @mypixstar.com')
+    ap.add_argument(
+        '-v', dest='verbosity', action='count', default=0,
+        help='increase logging verbosity; can be used multiple times')
+
+    sp = ap.add_subparsers(dest='subcommand')
+    ls_ap = sp.add_parser('ls', help='list things')
+    ls_ap.add_argument(
+        'item', nargs='?',
+        help='album whose photos to list; if un-specified list albums')
 
     args = ap.parse_args()
 
@@ -38,11 +64,21 @@ def main():
         ctx = SSLContext()
         ctx.verify_mode = CERT_NONE
 
+    if not args.username:
+        sys.stderr.write('Username: ')
+        args.username = input().strip()
+
+    if not args.password:
+        sys.stderr.write('Password: ')
+        args.password = input().strip()
+
     api = API(ssl_context=ctx)
     api.login(args.username, args.password)
 
-    for a in api.albums():
-        api.album_photos_delete(a, api.album_photos(a)[:2])
+    if args.subcommand == 'ls':
+        ls(args, api)
+    else:
+        raise Exception(f'command {args.subcommand} not found')
 
     if False:
         db_path = osxphotos.utils.get_system_library_path()
