@@ -1,9 +1,14 @@
+from collections import namedtuple
 from http.cookiejar import CookieJar
 import logging
 import lxml.etree
 import time
 from urllib.parse import urlencode
 import urllib.request
+
+
+Album = namedtuple('Album', ['id', 'name'])
+Photo = namedtuple('Photo', ['id', 'name'])
 
 
 class API:
@@ -104,10 +109,7 @@ def _parse_list_response(f):
         assert id.startswith('album_id_')
         id = id[len('album_id_'):]
 
-        albums.append({
-            'name': a.text,
-            'id': id,
-        })
+        albums.append(Album(id=id, name=a.text))
 
     return albums
 
@@ -128,9 +130,9 @@ def _parse_album_photos_response(f):
         a = li.xpath('.//h5[@class="photo_title"]')
         assert len(a) == 1
 
-        photos.append({
-            'title': a[0].attrib['title'],
-            'id': cb[0].attrib['value'],
-        })
+        photos.append(
+            Photo(
+                id=cb[0].attrib['value'],
+                name=a[0].attrib['title']))
 
     return photos

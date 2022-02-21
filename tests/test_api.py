@@ -1,6 +1,6 @@
 import os.path
 
-from pixstar.api import _parse_list_response, _parse_album_photos_response
+from pixstar.api import Album, Photo, _parse_list_response, _parse_album_photos_response
 
 def test_albums():
     '''
@@ -15,7 +15,7 @@ def test_albums():
             'r',
             encoding='utf-8') as f:
         assert _parse_list_response(f) == [
-            {'name': 'Test Album', 'id': '4342523'}]
+            Album(name='Test Album', id='4342523')]
 
 
 def test_album_photos():
@@ -31,10 +31,10 @@ def test_album_photos():
             'r',
             encoding='utf-8') as f:
         assert _parse_album_photos_response(f) == [
-            {'title': 'final_dsc1458_122.jpg', 'id': '335372090'},
-            {'title': '_dsc1614_121.jpg', 'id': '335372089'},
-            {'title': '_dsc1613_120.jpg', 'id': '335372088'},
-            {'title': '_dsc1610_119.jpg', 'id': '335372087'},
+            Photo(name='final_dsc1458_122.jpg', id='335372090'),
+            Photo(name='_dsc1614_121.jpg', id='335372089'),
+            Photo(name='_dsc1613_120.jpg', id='335372088'),
+            Photo(name='_dsc1610_119.jpg', id='335372087'),
         ]
 
 
