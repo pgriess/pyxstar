@@ -42,8 +42,8 @@ def main():
     api.login(args.username, args.password)
 
     for a in api.albums():
-        print(a['name'])
-        for p in api.album_photos(a['id']):
+        print(a)
+        for p in api.album_photos(a):
             print(f'  {p}')
 
     if False:

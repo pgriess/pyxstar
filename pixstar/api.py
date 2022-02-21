@@ -61,7 +61,7 @@ class API:
 
         return _parse_list_response(resp)
 
-    def album_photos(self, album_id):
+    def album_photos(self, album):
         '''
         Get information about the given album.
         '''
@@ -78,7 +78,7 @@ class API:
                 'size': 'small',
                 '_': int(time.time() * 1000),
             })
-            req = urllib.request.Request(f'https://www.pix-star.com/album/web/{album_id}/?{qs}')
+            req = urllib.request.Request(f'https://www.pix-star.com/album/web/{album.id}/?{qs}')
             # XXX: Without this X-Requested-With header, we get a 404 on the last page
             #      rather than the sentintel 'no-more' response. The Pix-Star website
             #      uses the sentinel response, so do the same here.
