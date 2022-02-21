@@ -71,8 +71,6 @@ class API:
         photos = []
         page_num = 1
         while True:
-            logging.info(f'Requesting page {page_num}')
-
             qs = urlencode({
                 'page': page_num,
                 'size': 'small',
@@ -92,6 +90,25 @@ class API:
 
             photos += page_photos
             page_num += 1
+
+    def album_photos_delete(self, album, photos):
+        '''
+        Delete photos from the given album.
+        '''
+
+        # TODO: Paging of delete requests
+        req = urllib.request.Request(
+            f'https://www.pix-star.com/delete/album/image/',
+            data=urlencode(
+                [('images[]', p.id) for p in photos] +
+                [
+                    ('album_id', album.id),
+                    ('size', 'small'),
+                    ('album_type', 'web')]).encode('utf-8'))
+        req.add_header('X-Requested-With', 'XMLHttpRequest')
+
+        resp = self.url_opener.open(req)
+        assert resp.status == 200
 
 
 def _parse_list_response(f):

@@ -42,9 +42,7 @@ def main():
     api.login(args.username, args.password)
 
     for a in api.albums():
-        print(a)
-        for p in api.album_photos(a):
-            print(f'  {p}')
+        api.album_photos_delete(a, api.album_photos(a)[:2])
 
     if False:
         db_path = osxphotos.utils.get_system_library_path()
