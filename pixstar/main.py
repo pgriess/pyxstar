@@ -20,7 +20,7 @@ def main():
         '-k', dest='validate_https', action='store_false', default=True,
         help='disable HTTPS certificate checking')
     ap.add_argument(
-        'username', help='Pix-Start username, without @mypixstar.com')
+        'username', help='Pix-Star username, without @mypixstar.com')
     # TODO: Get from Keychain
     ap.add_argument(
         'password', help='Pix-Star password')
