@@ -3,6 +3,8 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 import logging
+import mimetypes
+import os.path
 from ssl import CERT_NONE, SSLContext
 import sys
 
@@ -46,6 +48,24 @@ def rm(args, api):
 
     raise Exception(f'Unable to find album {args.item}')
 
+
+def upload(args, api):
+    album = None
+    for a in api.albums():
+        if args.album in [a.name, a.id]:
+            album = a
+            break
+
+    assert album
+
+    with open(args.path, 'rb') as f:
+        api.album_photo_upload(
+            album,
+            f,
+            name=os.path.basename(args.path),
+            mime_type=mimetypes.guess_type(args.path)[0])
+
+
 def main():
     ap = ArgumentParser()
     ap.add_argument(
@@ -69,6 +89,10 @@ def main():
     rm_ap = sp.add_parser('rm', help='remove things')
     rm_ap.add_argument('album', help='the album whose photo to remove')
     rm_ap.add_argument('photo', help='the photo to remove')
+
+    upload_ap = sp.add_parser('upload', help='upload a file')
+    upload_ap.add_argument('album', help='album to upload the photo to')
+    upload_ap.add_argument('path', help='path to the file to upload')
 
     args = ap.parse_args()
 
@@ -98,6 +122,8 @@ def main():
         ls(args, api)
     elif args.subcommand == 'rm':
         rm(args, api)
+    elif args.subcommand == 'upload':
+        upload(args, api)
     else:
         raise Exception(f'command {args.subcommand} not found')
 

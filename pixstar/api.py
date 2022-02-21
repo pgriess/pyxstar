@@ -1,7 +1,8 @@
 from collections import namedtuple
 from http.cookiejar import CookieJar
-import logging
 import lxml.etree
+import random
+from string import ascii_lowercase
 import time
 from urllib.parse import urlencode
 import urllib.request
@@ -90,6 +91,34 @@ class API:
 
             photos += page_photos
             page_num += 1
+
+    def album_photo_upload(self, album, f, name, mime_type):
+        '''
+        Upload a photo to an album.
+        '''
+
+        mime_boundary = '----pyxstar'
+        mime_boundary += ''.join(random.choices(ascii_lowercase, k=16))
+
+        body = bytearray()
+        body += '\r\n'.join([
+            ('--' + mime_boundary),
+            f'Content-Disposition: form-data; name="image"; filename="{name}"',
+            f'Content-Type: {mime_type}',
+            '',
+            '']).encode('utf-8')
+        body += f.read() + b'\r\n'
+        body += ('--' + mime_boundary + '--').encode('utf-8') + b'\r\n'
+
+        qs = urlencode({'size': 'small'})
+        req = urllib.request.Request(
+            f'https://www.pix-star.com/album/web/{album.id}/?{qs}',
+            data=body)
+        req.add_header('Content-Type', 'multipart/form-data; boundary=' + mime_boundary)
+        req.add_header('X-Requested-With', 'XMLHttpRequest')
+
+        resp = self.url_opener.open(req)
+        assert resp.status == 200
 
     def album_photos_delete(self, album, photos):
         '''
