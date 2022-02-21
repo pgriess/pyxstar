@@ -12,15 +12,13 @@ from .api import API
 
 
 def ls(args, api):
-    albums = api.albums()
-
     if not args.item:
-        for a in albums:
+        for a in api.albums():
             print(a.name)
 
         return
 
-    for a in albums:
+    for a in api.albums():
         if a.name != args.item:
             continue
 
@@ -29,8 +27,24 @@ def ls(args, api):
 
         return
 
-    raise Exception(f'Unable to find album named {args.item}')
+    raise Exception(f'Unable to find album {args.item}')
 
+
+def rm(args, api):
+    for a in api.albums():
+        if args.album not in [a.name, a.id]:
+            continue
+
+        for p in api.album_photos(a):
+            if args.photo not in [p.name, p.id]:
+                continue
+
+            api.album_photos_delete(a, [p])
+            return
+
+        raise Exception(f'Unable to find photo {args.photo}')
+
+    raise Exception(f'Unable to find album {args.item}')
 
 def main():
     ap = ArgumentParser()
@@ -46,10 +60,15 @@ def main():
         help='increase logging verbosity; can be used multiple times')
 
     sp = ap.add_subparsers(dest='subcommand')
+
     ls_ap = sp.add_parser('ls', help='list things')
     ls_ap.add_argument(
         'item', nargs='?',
-        help='album whose photos to list; if un-specified list albums')
+        help='album whose photos to list; if absent list albums')
+
+    rm_ap = sp.add_parser('rm', help='remove things')
+    rm_ap.add_argument('album', help='the album whose photo to remove')
+    rm_ap.add_argument('photo', help='the photo to remove')
 
     args = ap.parse_args()
 
@@ -77,6 +96,8 @@ def main():
 
     if args.subcommand == 'ls':
         ls(args, api)
+    elif args.subcommand == 'rm':
+        rm(args, api)
     else:
         raise Exception(f'command {args.subcommand} not found')
 
