@@ -8,8 +8,6 @@ import os.path
 from ssl import CERT_NONE, SSLContext
 import sys
 
-import osxphotos
-
 from .api import API
 
 
@@ -126,13 +124,3 @@ def main():
         upload(args, api)
     else:
         raise Exception(f'command {args.subcommand} not found')
-
-    if False:
-        db_path = osxphotos.utils.get_system_library_path()
-        db = osxphotos.PhotosDB(db_path)
-
-        photos = db.photos(persons=['Ryder Griess', 'Asher Griess'])
-        photos = sorted(photos, key=lambda p: p.score.overall, reverse=True)
-        photos = [p for p in photos if datetime.now(tz=timezone.utc) - p.date < timedelta(days=100)]
-        for p in photos[:100]:
-            print(p.path)

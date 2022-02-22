@@ -6,7 +6,6 @@ authors = ["Peter Griess <pg@std.in>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-osxphotos = "^0.45.12"
 lxml = "^4.8.0"
 
 [tool.poetry.dev-dependencies]
