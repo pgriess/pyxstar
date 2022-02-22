@@ -79,6 +79,8 @@ def main():
 
     sp = ap.add_subparsers(dest='subcommand')
 
+    sp.add_parser('help', help='show help')
+
     ls_ap = sp.add_parser('ls', help='list things')
     ls_ap.add_argument(
         'item', nargs='?',
@@ -93,6 +95,10 @@ def main():
     upload_ap.add_argument('path', help='path to the file to upload')
 
     args = ap.parse_args()
+
+    if args.subcommand in ['help', None]:
+        ap.print_help()
+        sys.exit(0)
 
     # TODO: Something is changing our logging config before we get a chance to
     #       run? The format that we're seeing is different than expected.
