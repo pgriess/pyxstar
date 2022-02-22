@@ -1,6 +1,6 @@
 import os.path
 
-from pixstar.api import Album, Photo, _parse_list_response, _parse_album_photos_response
+from pyxstar.api import Album, Photo, _parse_list_response, _parse_album_photos_response
 
 def test_albums():
     '''

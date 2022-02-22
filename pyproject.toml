@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pixstar"
+name = "pyxstar"
 version = "0.1.0"
 description = ""
 authors = ["Peter Griess <pg@std.in>"]
@@ -13,7 +13,7 @@ lxml = "^4.8.0"
 pytest = "^6.2.5"
 
 [tool.poetry.scripts]
-pixstar = "pixstar.main:main"
+pyxstar = "pyxstar.main:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
