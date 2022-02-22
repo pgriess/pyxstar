@@ -100,8 +100,6 @@ def main():
         ap.print_help()
         sys.exit(0)
 
-    # TODO: Something is changing our logging config before we get a chance to
-    #       run? The format that we're seeing is different than expected.
     logging.basicConfig(
         style='{', format='{message}', stream=sys.stderr,
         level=logging.ERROR - args.verbosity * 10)
