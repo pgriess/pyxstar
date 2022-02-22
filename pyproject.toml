@@ -1,7 +1,12 @@
 [tool.poetry]
 name = "pyxstar"
 version = "0.1.0"
-description = ""
+description = "A library and commandline tool for managing Pix-Star digital photo frames"
+keywords = ["pix-star", "pixstar"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/pgriess/pyxstar"
+repository = "https://github.com/pgriess/pyxstar"
 authors = ["Peter Griess <pg@std.in>"]
 
 [tool.poetry.dependencies]
