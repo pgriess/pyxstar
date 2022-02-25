@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyxstar"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library and commandline tool for managing Pix-Star digital photo frames"
 keywords = ["pix-star", "pixstar"]
 readme = "README.md"
