@@ -62,6 +62,20 @@ class API:
 
         return _parse_list_response(resp)
 
+    def album(self, name):
+        '''
+        Get an album with a specific name. Raises a KeyError if the album could
+        not be found.
+        '''
+
+        assert self.csrf_token
+
+        for a in self.albums():
+            if a.name == name:
+                return a
+
+        raise KeyError()
+
     def album_photos(self, album):
         '''
         Get information about the given album.
