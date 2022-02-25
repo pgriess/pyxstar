@@ -163,8 +163,11 @@ def _parse_list_response(f):
 def _parse_album_photos_response(f):
     photos = []
 
-    data = f.read()
-    if data == 'no-more':
+    # There are some sentinel values that the "API" returns -- 'no-data' for a
+    # read past the last page of results, and '\n\n' when the album is
+    # completely empty.
+    data = f.read().strip()
+    if not data or data == 'no-more':
         return photos
 
     doc = lxml.etree.fromstring(data, lxml.etree.HTMLParser())
