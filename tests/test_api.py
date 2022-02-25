@@ -51,3 +51,18 @@ def test_album_photos_end():
             'r',
             encoding='utf-8') as f:
         assert _parse_album_photos_response(f) == []
+
+
+def test_album_photos_empty():
+    '''
+    Verify parsing of end-of-list response from the /album/web/<id> endpoint.
+    '''
+
+    with open(
+            os.path.join(
+                os.path.dirname(__file__),
+                'data',
+                'album_web_empty.html'),
+            'r',
+            encoding='utf-8') as f:
+        assert _parse_album_photos_response(f) == []
