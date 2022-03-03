@@ -1,6 +1,8 @@
 import configparser
 import os.path
+import random
 import re
+from string import ascii_lowercase
 
 import pytest
 
@@ -27,10 +29,9 @@ def test_integration(api):
     An integration test.
     '''
 
-    # We should have at one album for testing
-    albums = [a for a in api.albums() if re.match(r'^test_', a.name, re.I)]
-    assert albums == [Album(name='Test_Integration', id='4345266')]
-    album = albums[0]
+    # Create an album for testing
+    album_name = 'test_' + ''.join(random.choices(ascii_lowercase, k=12))
+    album = api.album_create(album_name)
 
     assert len(api.album_photos(album)) == 0
 
@@ -50,3 +51,13 @@ def test_integration(api):
 
     # It should be gone from the list
     assert len(api.album_photos(album)) == 0
+
+    # Delete the album
+    api.album_delete([album])
+
+    # It should no longer be visible via the list from albums()
+    assert [] == [a for a in api.albums() if a.id == album.id]
+
+    # It should no longer be visible via album()
+    with pytest.raises(KeyError):
+        api.album(album_name)

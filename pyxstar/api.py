@@ -2,6 +2,7 @@ from collections import namedtuple
 from http.cookiejar import CookieJar
 import lxml.etree
 import random
+import re
 from string import ascii_lowercase
 import time
 from urllib.parse import urlencode
@@ -75,6 +76,46 @@ class API:
                 return a
 
         raise KeyError()
+
+    # TODO: How does the server handle duplicate album names? The UI pops up an alert
+    #       but doesn't actually make the request
+    def album_create(self, name):
+        '''
+        Create the given album, returning it.
+        '''
+
+        qs = urlencode({
+            'album_name': name,
+            'csrfmiddlewaretoken': self.csrf_token,
+        })
+        resp = self.url_opener.open(
+            f'https://www.pix-star.com/create/new_album/?{qs}')
+
+        assert resp.status == 200
+        m = re.match(r'^https://www.pix-star.com/album/web/([0-9]+)/', resp.geturl())
+        assert m
+        album_id = m.group(1)
+
+        for a in self.albums():
+            if a.id == album_id:
+                return a
+
+        raise Exception('Could not find newly-created album')
+
+    def album_delete(self, albums):
+        '''
+        Delete several albums.
+        '''
+
+        # TODO: Paging of delete requests
+        req = urllib.request.Request(
+            f'https://www.pix-star.com/delete/album/',
+            data=urlencode(
+                [('web_albums[]', a.id) for a in albums]).encode('utf-8'))
+        req.add_header('X-Requested-With', 'XMLHttpRequest')
+
+        resp = self.url_opener.open(req)
+        assert resp.status == 200
 
     def album_photos(self, album):
         '''
