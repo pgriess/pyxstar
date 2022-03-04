@@ -2,7 +2,7 @@ import os.path
 
 from pyxstar.api import Album, Photo, _parse_list_response, _parse_album_photos_response
 
-def test_albums():
+def test_albums() -> None:
     '''
     Verify parsing of the /albums/list endpoint.
     '''
@@ -18,7 +18,7 @@ def test_albums():
             Album(name='Test Album', id='4342523')]
 
 
-def test_album_photos():
+def test_album_photos() -> None:
     '''
     Verify basic parsing of the /album/web/<id> endpoint.
     '''
@@ -38,7 +38,7 @@ def test_album_photos():
         ]
 
 
-def test_album_photos_end():
+def test_album_photos_end() -> None:
     '''
     Verify parsing of end-of-list response from the /album/web/<id> endpoint.
     '''
@@ -53,7 +53,7 @@ def test_album_photos_end():
         assert _parse_album_photos_response(f) == []
 
 
-def test_album_photos_empty():
+def test_album_photos_empty() -> None:
     '''
     Verify parsing of end-of-list response from the /album/web/<id> endpoint.
     '''

@@ -1,5 +1,7 @@
 from collections import namedtuple
 from http.cookiejar import CookieJar
+from ssl import SSLContext
+from typing import IO, List, Optional
 import lxml.etree
 import random
 import re
@@ -14,17 +16,17 @@ Photo = namedtuple('Photo', ['id', 'name'])
 
 
 class API:
-    cookie_jar = None
-    csrf_token = None
-    url_opener = None
+    cookie_jar: CookieJar
+    csrf_token: Optional[str]
+    url_opener: urllib.request.OpenerDirector
 
-    def __init__(self, ssl_context=None):
+    def __init__(self, ssl_context: SSLContext=None):
         self.cookie_jar = CookieJar()
         self.url_opener = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self.cookie_jar),
             urllib.request.HTTPSHandler(context=ssl_context))
 
-    def login(self, username, password):
+    def login(self, username: str, password: str) -> None:
         '''
         Login to the Pix-Star service.
 
@@ -51,7 +53,7 @@ class API:
         assert resp.geturl() == 'https://www.pix-star.com/my_pixstar/'
 
     # TODO: Handle paging
-    def albums(self):
+    def albums(self) -> List[Album]:
         '''
         List the user's web albums.
         '''
@@ -63,7 +65,7 @@ class API:
 
         return _parse_list_response(resp)
 
-    def album(self, name):
+    def album(self, name: str) -> Album:
         '''
         Get an album with a specific name. Raises a KeyError if the album could
         not be found.
@@ -79,7 +81,7 @@ class API:
 
     # TODO: How does the server handle duplicate album names? The UI pops up an alert
     #       but doesn't actually make the request
-    def album_create(self, name):
+    def album_create(self, name: str) -> Album:
         '''
         Create the given album, returning it.
         '''
@@ -102,7 +104,7 @@ class API:
 
         raise Exception('Could not find newly-created album')
 
-    def album_delete(self, albums):
+    def album_delete(self, albums: List[Album]) -> None:
         '''
         Delete several albums.
         '''
@@ -117,14 +119,14 @@ class API:
         resp = self.url_opener.open(req)
         assert resp.status == 200
 
-    def album_photos(self, album):
+    def album_photos(self, album: Album) -> List[Photo]:
         '''
         Get information about the given album.
         '''
 
         assert self.csrf_token
 
-        photos = []
+        photos: List[Photo] = []
         page_num = 1
         while True:
             qs = urlencode({
@@ -147,7 +149,7 @@ class API:
             photos += page_photos
             page_num += 1
 
-    def album_photo_upload(self, album, f, name, mime_type):
+    def album_photo_upload(self, album: Album, f: IO, name: str, mime_type: str) -> None:
         '''
         Upload a photo to an album.
         '''
@@ -175,7 +177,7 @@ class API:
         resp = self.url_opener.open(req)
         assert resp.status == 200
 
-    def album_photos_delete(self, album, photos):
+    def album_photos_delete(self, album: Album, photos: List[Photo]):
         '''
         Delete photos from the given album.
         '''
@@ -195,7 +197,7 @@ class API:
         assert resp.status == 200
 
 
-def _parse_list_response(f):
+def _parse_list_response(f: IO) -> List[Album]:
     albums = []
 
     doc = lxml.etree.parse(f, lxml.etree.HTMLParser())
@@ -215,8 +217,8 @@ def _parse_list_response(f):
     return albums
 
 
-def _parse_album_photos_response(f):
-    photos = []
+def _parse_album_photos_response(f: IO) -> List[Photo]:
+    photos: List[Photo] = []
 
     # There are some sentinel values that the "API" returns -- 'no-data' for a
     # read past the last page of results, and '\n\n' when the album is

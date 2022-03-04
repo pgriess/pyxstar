@@ -10,7 +10,7 @@ from pyxstar.api import Album, API, Photo
 
 
 @pytest.fixture
-def api():
+def api() -> API:
     '''
     Fixture to provide a logged-in API object.
     '''
@@ -24,7 +24,7 @@ def api():
     return a
 
 
-def test_integration(api):
+def test_integration(api: API) -> None:
     '''
     An integration test.
     '''

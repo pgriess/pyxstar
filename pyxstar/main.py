@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 import logging
 import mimetypes
 import os.path
@@ -8,7 +8,7 @@ import sys
 from .api import API
 
 
-def ls(args, api):
+def ls(args: Namespace, api: API) -> None:
     if not args.item:
         for a in api.albums():
             print(a.name)
@@ -27,7 +27,7 @@ def ls(args, api):
     raise Exception(f'Unable to find album {args.item}')
 
 
-def rm(args, api):
+def rm(args: Namespace, api: API) -> None:
     for a in api.albums():
         if args.album not in [a.name, a.id]:
             continue
@@ -44,7 +44,8 @@ def rm(args, api):
     raise Exception(f'Unable to find album {args.item}')
 
 
-def upload(args, api):
+def upload(args: Namespace, api: API) -> None:
+    # TODO: Use API.album(); extend to support lookup by ID
     album = None
     for a in api.albums():
         if args.album in [a.name, a.id]:
@@ -53,12 +54,15 @@ def upload(args, api):
 
     assert album
 
+    mime_type = mimetypes.guess_type(args.path)[0]
+    assert mime_type
+
     with open(args.path, 'rb') as f:
         api.album_photo_upload(
             album,
             f,
             name=os.path.basename(args.path),
-            mime_type=mimetypes.guess_type(args.path)[0])
+            mime_type=mime_type)
 
 
 def main():
