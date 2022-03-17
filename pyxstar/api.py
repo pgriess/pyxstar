@@ -22,6 +22,7 @@ class API:
 
     def __init__(self, ssl_context: SSLContext = None):
         self.cookie_jar = CookieJar()
+        self.csrf_token = None
         self.url_opener = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self.cookie_jar),
             urllib.request.HTTPSHandler(context=ssl_context),
