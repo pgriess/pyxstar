@@ -46,11 +46,16 @@ def test_integration(api: API) -> None:
     album_photos = api.album_photos(album)
     assert len(album_photos) == 1
 
+    # It should display the photo/album on the screen
+    api.album_display(album)
+
     # Delete the photo
     api.album_photos_delete(album, album_photos)
 
     # It should be gone from the list
     assert len(api.album_photos(album)) == 0
+
+    # The screen should go back to main menu as the album is empty (and thus can't be displayed)
 
     # Delete the album
     api.album_delete([album])
