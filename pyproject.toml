@@ -10,12 +10,12 @@ repository = "https://github.com/pgriess/pyxstar"
 authors = ["Peter Griess <pg@std.in>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.10"
 lxml = "^4.5.0"
 certifi = "^2024.8.30"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
+pytest = "^8.3.2"
 mypy = "^0.931"
 black = "^22.1.0"
 
