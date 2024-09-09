@@ -91,6 +91,23 @@ class API:
 
         raise KeyError()
 
+    # TODO: When looking at the request when made from the website UI, it include a dpf_info_id
+    # For now the request are accepted without this field even set
+    # TODO: The group_id need to be set for the action to be taken into account (otherwise reply with '0')
+    # SHould it have other values than 0 ?
+    def album_display(self, album: Album) -> None:
+        """
+        Launch the album on the display
+        """
+        data = urlencode({
+            "identificator": album.id,
+            "group_id": 0,
+        }).encode("utf-8")
+        resp = self.url_opener.open("https://www.pix-star.com/set/album/", data)
+
+        assert resp.status == 200
+        assert resp.readlines() == [b'1']
+
     # TODO: How does the server handle duplicate album names? The UI pops up an alert
     #       but doesn't actually make the request
     def album_create(self, name: str) -> Album:
