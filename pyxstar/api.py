@@ -1,6 +1,7 @@
+import certifi
 from collections import namedtuple
 from http.cookiejar import CookieJar
-from ssl import SSLContext
+from ssl import PROTOCOL_TLS_CLIENT, SSLContext
 from typing import IO, List, Optional
 import lxml.etree
 import random
@@ -20,9 +21,14 @@ class API:
     csrf_token: Optional[str]
     url_opener: urllib.request.OpenerDirector
 
-    def __init__(self, ssl_context: SSLContext = None):
+    def __init__(self, ssl_context: SSLContext | None = None):
         self.cookie_jar = CookieJar()
         self.csrf_token = None
+
+        if ssl_context is None:
+            ssl_context = SSLContext(protocol=PROTOCOL_TLS_CLIENT)
+            ssl_context.load_verify_locations(cafile=certifi.where())
+
         self.url_opener = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self.cookie_jar),
             urllib.request.HTTPSHandler(context=ssl_context),
