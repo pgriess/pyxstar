@@ -45,7 +45,7 @@ class API:
 
         self.url_opener.open("https://www.pix-star.com/")
         for c in self.cookie_jar:
-            if c.name == "csrftoken":
+            if c.name == "XSRF-TOKEN":
                 self.csrf_token = c.value
 
         assert self.csrf_token
